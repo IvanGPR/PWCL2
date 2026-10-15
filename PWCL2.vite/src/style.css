@@ -1,74 +1,191 @@
+:root {
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --primary-focus: #ffedd5;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --radius: 12px;
+  --shadow: #e2e8f0;
+  --shadow-hover: #cbd5e1;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  font-family: var(--font-main);
+  color: var(--text-main);
+  line-height: 1.5;
+}
 
 #app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 1.5rem;
 }
-
 
 #comida {
-  font-family: var(--heading);
-  font-size: 48px;
+  font-size: 2.75rem;
   font-weight: 800;
   text-align: center;
-  color: var(--accent);
-  letter-spacing: 3px;
+  color: var(--primary);
+  letter-spacing: -1px;
   text-transform: uppercase;
-  margin: 20px 0 30px;
-  line-height: 1.2;
+  margin: 0 0 1rem;
 }
 
-/* Adaptación a pantallas pequeñas */
-@media (max-width: 480px) {
-  #comida {
-    font-size: 32px;
-    letter-spacing: 2px;
-    margin: 16px 0 24px;
-  }
-}
-
-#buscador {
+/* Buscador y Controles */
+#buscador, 
+#app > div:nth-child(3) {
   width: 100%;
   max-width: 600px;
 }
 
-#buscador label {
+#buscador label,
+#app > div:nth-child(3) label {
   display: block;
-  margin-bottom: 12px;
-  color: var(--text-h);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
 }
 
 #buscador > div {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
-#selecComida {
-  flex: 1;
-  min-width: 0;
-  margin-right: 0;
-  max-width: none;
+input[type="text"],
+select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 1px 2px #f1f5f9;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-focus);
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Título de Resultados */
+#tituloComida {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Grid de Resultados */
 #resultados {
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Tarjetas */
+.tarjeta-receta {
+  background-color: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta-receta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px var(--shadow-hover);
+}
+
+.tarjeta-receta img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.tarjeta-receta h3 {
+  font-size: 1.1rem;
+  margin: 1rem 1rem 0.5rem;
+  color: var(--text-main);
+}
+
+.tarjeta-receta p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 1rem 1rem;
+  text-transform: capitalize;
 }
 
 .tarjeta-receta a {
-  color: var(--accent);
+  margin: auto 1rem 1rem;
+  padding: 0.5rem;
+  text-align: center;
+  background-color: #fff7ed;
+  color: var(--primary);
+  border-radius: calc(var(--radius) - 4px);
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 0.2s;
 }
 
 .tarjeta-receta a:hover {
-  text-decoration: underline;
+  background-color: #ffedd5;
 }
 
+/* Adaptación Mobile */
 @media (max-width: 480px) {
+  #comida {
+    font-size: 2rem;
+  }
+
   #buscador > div {
     flex-direction: column;
-    align-items: stretch;
+  }
+
+  button {
+    width: 100%;
   }
 }

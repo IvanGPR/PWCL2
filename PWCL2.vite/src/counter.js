@@ -1,9 +1,9 @@
-
 const API = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
-
+const API_CATEGORIAS_LISTA = 'https://www.themealdb.com/api/json/v1/1/list.php?c=list';
+const API_CATEGORIAS_FILTRO = 'https://www.themealdb.com/api/json/v1/1/filter.php?c=';
 
 export async function buscarRecetaAPI(nombre) {
-  const tituloSelecComida = document.getElementById('tituloSelecComida');
+  const tituloSelecComida = document.getElementById('tituloComida');
   const resultados = document.getElementById('resultados');
 
   if (!nombre) {
@@ -30,8 +30,7 @@ export async function buscarRecetaAPI(nombre) {
     }
 
     const cantidad = datos.meals.length;
-
-    tituloSelecComida.textContent = cantidad === 1 ? 'Se encontró 1 receta': `Se encontraron ${cantidad} recetas`;
+    tituloSelecComida.textContent = cantidad === 1 ? 'Se encontró 1 receta' : `Se encontraron ${cantidad} recetas`;
 
     datos.meals.forEach((comida) => {
       const tarjeta = document.createElement('article');
@@ -46,7 +45,7 @@ export async function buscarRecetaAPI(nombre) {
       nombreComida.textContent = comida.strMeal;
 
       const categoria = document.createElement('p');
-      categoria.textContent = comida.strCategory || 'categoria no disponible';
+      categoria.textContent = comida.strCategory || 'Categoría no disponible';
 
       const enlace = document.createElement('a');
       enlace.href = comida.strSource || `https://www.themealdb.com/meal.php?c=${comida.idMeal}`;
@@ -60,57 +59,110 @@ export async function buscarRecetaAPI(nombre) {
 
   } catch (error) {
     console.error('Error al consultar TheMealDB:', error);
-    tituloSelecComida.textContent ='No se pudieron cargar las recetas';
+    tituloSelecComida.textContent = 'No se pudieron cargar las recetas';
   }
 }
 
-
-async function contarNumDatos() {
+export async function contarNumDatos() {
   try {
-      const response = await fetch(API);
+    const response = await fetch(API);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const datos = await response.json();
+    return datos.meals ? datos.meals.length : 0;
+  } catch (error) {
+    console.error('Error al contar las recetas:', error);
+    return 0;
+  }
+}
 
-      if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`);
-      }
+export async function obtenerCategoriasValidas() {
+  try {
+    const response = await fetch(API_CATEGORIAS_LISTA);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    
+    const datos = await response.json();
+    const listaOriginal = datos.meals || [];
 
-      const datos = await response.json();
-      const cantidad = datos.meals ? datos.meals.length : 0;
+    const nombresCategorias = listaOriginal.map(item => item.strCategory);
 
-      console.log("Cantidad de recetas:", cantidad);
+    const categoriasValidas = nombresCategorias.filter(categoria => categoria && categoria.trim() !== '');
 
-      return cantidad;
+    return categoriasValidas;
 
   } catch (error) {
-      console.error("Error al contar las recetas:", error);
-      return 0;
+    console.error('Error al procesar las categorías:', error);
+    return [];
   }
 }
 
 export async function contarNumCategorias() {
-  try {
-      const response = await fetch(API);
-
-      if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      const datos = await response.json();
-
-      const comidas = datos.meals || [];
-
-      const categorias = new Set(
-          comidas.map(comida => comida.strCategory).filter(categoria => categoria)
-      );
-
-      const cantidadCategorias = categorias.size;
-
-      console.log('Cantidad de categorias:', cantidadCategorias);
-
-      return cantidadCategorias;
-
-  } catch (error) {
-      console.error('Error al contar las categorías:', error);
-      return 0;
-  }
+  const categorias = await obtenerCategoriasValidas();
+  return categorias.length;
 }
 
+function generadorOpcion(valor, texto) {
+  const opcion = document.createElement('option');
+  opcion.value = valor;
+  opcion.textContent = texto;
+  document.getElementById('selectorCategorias').appendChild(opcion);
+}
+
+export async function agregarOpcion() {
+  const selector = document.getElementById('selectorCategorias');
+
+  const categorias = await obtenerCategoriasValidas();
+
+  selector.replaceChildren();
+  generadorOpcion('', 'Selecciona una categoría');
+
+  categorias.forEach(categoria => {
+    generadorOpcion(categoria, categoria);
+  });
+}
+
+export async function mostrarPlatosCategoria(categoria) {
+  const resultados = document.getElementById('resultados');
+  const tituloSelecCategoria = document.getElementById('tituloComida');
+
+  if (!categoria) {
+    tituloSelecCategoria.textContent = 'Selecciona una categoría';
+    resultados.replaceChildren();
+    return;
+  }
+
+  try {
+    tituloSelecCategoria.textContent = `Platos de ${categoria}...`;
+    resultados.replaceChildren();
+
+    const respuesta = await fetch(`${API_CATEGORIAS_FILTRO}${encodeURIComponent(categoria)}`);
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+    const comidas = datos.meals || [];
+
+    tituloSelecCategoria.textContent = `Platos de ${categoria}: ${comidas.length}`;
+
+    comidas.forEach((comida) => {
+      const tarjeta = document.createElement('article');
+      tarjeta.className = 'tarjeta-receta';
+
+      const imagen = document.createElement('img');
+      imagen.src = comida.strMealThumb;
+      imagen.alt = comida.strMeal;
+      imagen.loading = 'lazy';
+
+      const nombre = document.createElement('h3');
+      nombre.textContent = comida.strMeal;
+
+      tarjeta.append(imagen, nombre);
+      resultados.appendChild(tarjeta);
+    });
+
+  } catch (error) {
+    console.error('Error al cargar los platos:', error);
+    tituloSelecCategoria.textContent = 'No se pudieron cargar los platos.';
+  }
+}
