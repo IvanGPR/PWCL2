@@ -1,3 +1,4 @@
+
 :root {
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --bg-color: #f8fafc;
@@ -32,7 +33,7 @@ body {
   gap: 1.5rem;
 }
 
-#comida {
+#cocktails {
   font-size: 2.75rem;
   font-weight: 800;
   text-align: center;
@@ -42,8 +43,7 @@ body {
   margin: 0 0 1rem;
 }
 
-/* Buscador y Controles */
-#buscador, 
+#buscador,
 #app > div:nth-child(3) {
   width: 100%;
   max-width: 600px;
@@ -105,8 +105,8 @@ button:active {
   transform: scale(0.98);
 }
 
-/* Título de Resultados */
-#tituloComida {
+
+#tituloCocktail {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-main);
@@ -114,7 +114,7 @@ button:active {
   text-align: center;
 }
 
-/* Grid de Resultados */
+
 #resultados {
   width: 100%;
   display: grid;
@@ -123,8 +123,8 @@ button:active {
   margin-top: 1rem;
 }
 
-/* Tarjetas */
-.tarjeta-receta {
+
+.tarjeta-cocktail {
   background-color: var(--card-bg);
   border-radius: var(--radius);
   overflow: hidden;
@@ -135,31 +135,31 @@ button:active {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.tarjeta-receta:hover {
+.tarjeta-cocktail:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 15px -3px var(--shadow-hover);
 }
 
-.tarjeta-receta img {
+.tarjeta-cocktail img {
   width: 100%;
   height: 180px;
   object-fit: cover;
 }
 
-.tarjeta-receta h3 {
+.tarjeta-cocktail h3 {
   font-size: 1.1rem;
   margin: 1rem 1rem 0.5rem;
   color: var(--text-main);
 }
 
-.tarjeta-receta p {
+.tarjeta-cocktail p {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin: 0 1rem 1rem;
   text-transform: capitalize;
 }
 
-.tarjeta-receta a {
+.tarjeta-cocktail a {
   margin: auto 1rem 1rem;
   padding: 0.5rem;
   text-align: center;
@@ -171,13 +171,12 @@ button:active {
   transition: background-color 0.2s;
 }
 
-.tarjeta-receta a:hover {
+.tarjeta-cocktail a:hover {
   background-color: #ffedd5;
 }
 
-/* Adaptación Mobile */
 @media (max-width: 480px) {
-  #comida {
+  #cocktails {
     font-size: 2rem;
   }
 

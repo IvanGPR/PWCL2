@@ -1,48 +1,52 @@
 
 import './style.css';
-import { 
-  buscarRecetaAPI, 
-  agregarOpcion, 
-  mostrarPlatosCategoria, 
-  contarNumDatos, 
-  contarNumCategorias 
+
+import {
+  buscarCocktailAPI,
+  agregarOpcion,
+  mostrarCocktailsCategoria,
+  contarNumCocktails,
+  contarNumCategorias
 } from './counter.js';
 
-const selecComida = document.getElementById('selecComida');
-const buscarComida = document.getElementById('buscarComida');
+const selecCocktail = document.getElementById('selecCocktail');
+const buscarCocktail = document.getElementById('buscarCocktail');
 
 function ejecutarBuscador() {
-  const busqueda = selecComida.value.trim();
+  const busqueda = selecCocktail.value.trim();
+
   document.getElementById('selectorCategorias').value = '';
-  buscarRecetaAPI(busqueda);
+
+  buscarCocktailAPI(busqueda);
 }
 
-buscarComida.addEventListener('click', ejecutarBuscador);
+buscarCocktail.addEventListener('click', ejecutarBuscador);
 
-selecComida.addEventListener('keydown', (event) => {
+selecCocktail.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     ejecutarBuscador();
   }
 });
 
 document.getElementById('selectorCategorias').addEventListener('change', (evento) => {
-  selecComida.value = '';
-  mostrarPlatosCategoria(evento.target.value);
+  selecCocktail.value = '';
+  mostrarCocktailsCategoria(evento.target.value);
 });
 
 async function iniciarApp() {
   await agregarOpcion();
 
-  // 2. Obtenemos contadores
-  const cantidadRecetas = await contarNumDatos();
+  const cantidadCocktails = await contarNumCocktails();
   const cantidadCategorias = await contarNumCategorias();
 
-  document.getElementById('selecComida').placeholder = 
-    `Escriba el nombre de una de las ${cantidadRecetas} recetas`;
+  document.getElementById('selecCocktail').placeholder =
+    `Escriba el nombre de uno de los ${cantidadCocktails} cocktails`;
 
   const selector = document.getElementById('selectorCategorias');
+
   if (selector.options.length > 0) {
-    selector.options[0].textContent = `Elija una de las ${cantidadCategorias} categorías`;
+    selector.options[0].textContent =
+      `Elija una de las ${cantidadCategorias} categorías`;
   }
 }
 

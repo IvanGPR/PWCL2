@@ -1,22 +1,30 @@
-const API = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
-const API_CATEGORIAS_LISTA = 'https://www.themealdb.com/api/json/v1/1/list.php?c=list';
-const API_CATEGORIAS_FILTRO = 'https://www.themealdb.com/api/json/v1/1/filter.php?c=';
 
-export async function buscarRecetaAPI(nombre) {
-  const tituloSelecComida = document.getElementById('tituloComida');
+const API_COCKTAILS =
+  'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=';
+
+const API_CATEGORIAS_LISTA =
+  'https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list';
+
+const API_CATEGORIAS_FILTRO =
+  'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=';
+
+export async function buscarCocktailAPI(nombre) {
+  const tituloSelecCocktail = document.getElementById('tituloCocktail');
   const resultados = document.getElementById('resultados');
 
   if (!nombre) {
-    tituloSelecComida.textContent = 'Escribe el nombre de una receta';
+    tituloSelecCocktail.textContent = 'Escribe el nombre de un cocktail';
     resultados.replaceChildren();
     return;
   }
 
-  tituloSelecComida.textContent = 'Buscando recetas...';
+  tituloSelecCocktail.textContent = 'Buscando cocktails...';
   resultados.replaceChildren();
 
   try {
-    const respuesta = await fetch(`${API}${encodeURIComponent(nombre)}`);
+    const respuesta = await fetch(
+      `${API_COCKTAILS}${encodeURIComponent(nombre)}`
+    );
 
     if (!respuesta.ok) {
       throw new Error(`Error HTTP: ${respuesta.status}`);
@@ -24,68 +32,88 @@ export async function buscarRecetaAPI(nombre) {
 
     const datos = await respuesta.json();
 
-    if (!datos.meals) {
-      tituloSelecComida.textContent = 'No se encontraron recetas';
+    if (!datos.drinks) {
+      tituloSelecCocktail.textContent = 'No se encontraron cocktails';
       return;
     }
 
-    const cantidad = datos.meals.length;
-    tituloSelecComida.textContent = cantidad === 1 ? 'Se encontró 1 receta' : `Se encontraron ${cantidad} recetas`;
+    const cantidad = datos.drinks.length;
 
-    datos.meals.forEach((comida) => {
+    tituloSelecCocktail.textContent =
+      cantidad === 1
+        ? 'Se encontró 1 cocktail'
+        : `Se encontraron ${cantidad} cocktails`;
+
+    datos.drinks.forEach((cocktail) => {
       const tarjeta = document.createElement('article');
-      tarjeta.className = 'tarjeta-receta';
+      tarjeta.className = 'tarjeta-cocktail';
 
       const imagen = document.createElement('img');
-      imagen.src = comida.strMealThumb;
-      imagen.alt = comida.strMeal;
+      imagen.src = cocktail.strDrinkThumb;
+      imagen.alt = cocktail.strDrink;
       imagen.loading = 'lazy';
 
-      const nombreComida = document.createElement('h3');
-      nombreComida.textContent = comida.strMeal;
+      const nombreCocktail = document.createElement('h3');
+      nombreCocktail.textContent = cocktail.strDrink;
 
       const categoria = document.createElement('p');
-      categoria.textContent = comida.strCategory || 'Categoría no disponible';
+      categoria.textContent =
+        cocktail.strCategory || 'Categoría no disponible';
 
       const enlace = document.createElement('a');
-      enlace.href = comida.strSource || `https://www.themealdb.com/meal.php?c=${comida.idMeal}`;
+      enlace.href =
+        `https://www.thecocktaildb.com/drink.php?c=${cocktail.idDrink}`;
       enlace.target = '_blank';
       enlace.rel = 'noopener noreferrer';
-      enlace.textContent = 'Ver receta';
+      enlace.textContent = 'Ver cocktail';
 
-      tarjeta.append(imagen, nombreComida, categoria, enlace);
+      tarjeta.append(imagen, nombreCocktail, categoria, enlace);
       resultados.appendChild(tarjeta);
     });
 
   } catch (error) {
-    console.error('Error al consultar TheMealDB:', error);
-    tituloSelecComida.textContent = 'No se pudieron cargar las recetas';
+    console.error('Error al consultar TheCocktailDB:', error);
+    tituloSelecCocktail.textContent =
+      'No se pudieron cargar los cocktails';
   }
 }
 
-export async function contarNumDatos() {
+export async function contarNumCocktails() {
   try {
-    const response = await fetch(API);
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-    const datos = await response.json();
-    return datos.meals ? datos.meals.length : 0;
+    const respuesta = await fetch(API_COCKTAILS);
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+
+    return datos.drinks ? datos.drinks.length : 0;
+
   } catch (error) {
-    console.error('Error al contar las recetas:', error);
+    console.error('Error al contar los cocktails:', error);
     return 0;
   }
 }
 
 export async function obtenerCategoriasValidas() {
   try {
-    const response = await fetch(API_CATEGORIAS_LISTA);
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-    
-    const datos = await response.json();
-    const listaOriginal = datos.meals || [];
+    const respuesta = await fetch(API_CATEGORIAS_LISTA);
 
-    const nombresCategorias = listaOriginal.map(item => item.strCategory);
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
 
-    const categoriasValidas = nombresCategorias.filter(categoria => categoria && categoria.trim() !== '');
+    const datos = await respuesta.json();
+    const listaOriginal = datos.drinks || [];
+
+    const nombresCategorias = listaOriginal.map(
+      item => item.strCategory
+    );
+
+    const categoriasValidas = nombresCategorias.filter(
+      categoria => categoria && categoria.trim() !== ''
+    );
 
     return categoriasValidas;
 
@@ -102,8 +130,10 @@ export async function contarNumCategorias() {
 
 function generadorOpcion(valor, texto) {
   const opcion = document.createElement('option');
+
   opcion.value = valor;
   opcion.textContent = texto;
+
   document.getElementById('selectorCategorias').appendChild(opcion);
 }
 
@@ -113,6 +143,7 @@ export async function agregarOpcion() {
   const categorias = await obtenerCategoriasValidas();
 
   selector.replaceChildren();
+
   generadorOpcion('', 'Selecciona una categoría');
 
   categorias.forEach(categoria => {
@@ -120,9 +151,9 @@ export async function agregarOpcion() {
   });
 }
 
-export async function mostrarPlatosCategoria(categoria) {
+export async function mostrarCocktailsCategoria(categoria) {
   const resultados = document.getElementById('resultados');
-  const tituloSelecCategoria = document.getElementById('tituloComida');
+  const tituloSelecCategoria = document.getElementById('tituloCocktail');
 
   if (!categoria) {
     tituloSelecCategoria.textContent = 'Selecciona una categoría';
@@ -131,38 +162,42 @@ export async function mostrarPlatosCategoria(categoria) {
   }
 
   try {
-    tituloSelecCategoria.textContent = `Platos de ${categoria}...`;
+    tituloSelecCategoria.textContent = `Cocktails de ${categoria}...`;
     resultados.replaceChildren();
 
-    const respuesta = await fetch(`${API_CATEGORIAS_FILTRO}${encodeURIComponent(categoria)}`);
+    const respuesta = await fetch(
+      `${API_CATEGORIAS_FILTRO}${encodeURIComponent(categoria)}`
+    );
 
     if (!respuesta.ok) {
       throw new Error(`Error HTTP: ${respuesta.status}`);
     }
 
     const datos = await respuesta.json();
-    const comidas = datos.meals || [];
+    const cocktails = datos.drinks || [];
 
-    tituloSelecCategoria.textContent = `Platos de ${categoria}: ${comidas.length}`;
+    tituloSelecCategoria.textContent =
+      `Cocktails de ${categoria}: ${cocktails.length}`;
 
-    comidas.forEach((comida) => {
+    cocktails.forEach((cocktail) => {
       const tarjeta = document.createElement('article');
-      tarjeta.className = 'tarjeta-receta';
+      tarjeta.className = 'tarjeta-cocktail';
 
       const imagen = document.createElement('img');
-      imagen.src = comida.strMealThumb;
-      imagen.alt = comida.strMeal;
+      imagen.src = cocktail.strDrinkThumb;
+      imagen.alt = cocktail.strDrink;
       imagen.loading = 'lazy';
 
-      const nombre = document.createElement('h3');
-      nombre.textContent = comida.strMeal;
+      const nombreCocktail = document.createElement('h3');
+      nombreCocktail.textContent = cocktail.strDrink;
 
-      tarjeta.append(imagen, nombre);
+      tarjeta.append(imagen, nombreCocktail);
       resultados.appendChild(tarjeta);
     });
 
   } catch (error) {
-    console.error('Error al cargar los platos:', error);
-    tituloSelecCategoria.textContent = 'No se pudieron cargar los platos.';
+    console.error('Error al cargar los cocktails:', error);
+    tituloSelecCategoria.textContent =
+      'No se pudieron cargar los cocktails.';
   }
 }
