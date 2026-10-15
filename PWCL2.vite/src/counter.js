@@ -1,6 +1,7 @@
 
 const API = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
 
+
 export async function buscarRecetaAPI(nombre) {
   const tituloSelecComida = document.getElementById('tituloSelecComida');
   const resultados = document.getElementById('resultados');
@@ -45,12 +46,10 @@ export async function buscarRecetaAPI(nombre) {
       nombreComida.textContent = comida.strMeal;
 
       const categoria = document.createElement('p');
-      categoria.textContent =
-        comida.strCategory || 'Categoría no disponible';
+      categoria.textContent = comida.strCategory || 'categoria no disponible';
 
       const enlace = document.createElement('a');
-      enlace.href = comida.strSource ||
-        `https://www.themealdb.com/meal.php?c=${comida.idMeal}`;
+      enlace.href = comida.strSource || `https://www.themealdb.com/meal.php?c=${comida.idMeal}`;
       enlace.target = '_blank';
       enlace.rel = 'noopener noreferrer';
       enlace.textContent = 'Ver receta';
@@ -61,7 +60,57 @@ export async function buscarRecetaAPI(nombre) {
 
   } catch (error) {
     console.error('Error al consultar TheMealDB:', error);
-    tituloSelecComida.textContent =
-      'No se pudieron cargar las recetas. Inténtalo de nuevo.';
+    tituloSelecComida.textContent ='No se pudieron cargar las recetas';
   }
 }
+
+
+async function contarNumDatos() {
+  try {
+      const response = await fetch(API);
+
+      if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const datos = await response.json();
+      const cantidad = datos.meals ? datos.meals.length : 0;
+
+      console.log("Cantidad de recetas:", cantidad);
+
+      return cantidad;
+
+  } catch (error) {
+      console.error("Error al contar las recetas:", error);
+      return 0;
+  }
+}
+
+export async function contarNumCategorias() {
+  try {
+      const response = await fetch(API);
+
+      if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const datos = await response.json();
+
+      const comidas = datos.meals || [];
+
+      const categorias = new Set(
+          comidas.map(comida => comida.strCategory).filter(categoria => categoria)
+      );
+
+      const cantidadCategorias = categorias.size;
+
+      console.log('Cantidad de categorias:', cantidadCategorias);
+
+      return cantidadCategorias;
+
+  } catch (error) {
+      console.error('Error al contar las categorías:', error);
+      return 0;
+  }
+}
+
