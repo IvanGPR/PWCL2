@@ -17,18 +17,3 @@ export function obtenerMensajeResultados(cantidad) {
 export function obtenerMensajeCategoria(categoria, cantidad) {
   return `Cocktails de ${categoria}: ${cantidad}`;
 }
-
-
-export function contarCocktailsPorCategoria(cocktails) {
-  return cocktails.reduce((acumulador, cocktail) => {
-    const categoria = cocktail.strCategory;
-
-    if (!categoria) {
-      return acumulador;
-    }
-
-    acumulador[categoria] = (acumulador[categoria] || 0) + 1;
-
-    return acumulador;
-  }, {});
-}

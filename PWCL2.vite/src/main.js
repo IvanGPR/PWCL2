@@ -10,8 +10,7 @@ import {
 import {
   obtenerCategoriasValidas,
   obtenerMensajeResultados,
-  obtenerMensajeCategoria,
-  contarCocktailsPorCategoria
+  obtenerMensajeCategoria
 } from './logic.js';
 
 import {
@@ -95,25 +94,19 @@ async function iniciarApp() {
 
   try {
     const datosCategorias = await obtenerCategorias();
+
     const categorias = obtenerCategoriasValidas(datosCategorias);
 
     selectorCategorias.replaceChildren();
-    agregarOpcion('', `Elija una de las ${categorias.length} categorías`);
 
-    const todosLosCocktails = [];
-    for (const categoria of categorias) {
-      const cocktailsCat = await obtenerCocktailsCategoria(categoria);
-      cocktailsCat.forEach(c => c.strCategory = categoria);
-      todosLosCocktails.push(...cocktailsCat);
-    }
-
-    const recuento = contarCocktailsPorCategoria(todosLosCocktails);
+    agregarOpcion('', 'Selecciona una categoría');
 
     categorias.forEach(categoria => {
-      const cantidad = recuento[categoria] || 0;
-      agregarOpcion(categoria, `${categoria} (${cantidad})`);
+      agregarOpcion(categoria, categoria);
     });
 
+    selectorCategorias.options[0].textContent =
+      `Elija una de las ${categorias.length} categorías`;
   } catch (error) {
     console.error('Error al cargar las categorías:', error);
     mostrarEstadoPrograma('No se pudieron cargar las categorías');
