@@ -1,4 +1,3 @@
-
 import './style.css';
 
 import {
@@ -10,120 +9,128 @@ import {
 import {
   obtenerCategoriasValidas,
   obtenerMensajeResultados,
-  obtenerMensajeCategoria
+  obtenerMensajeCategoria,
+  ordenarCocktails
 } from './logic.js';
 
 import {
   mostrarEstadoPrograma,
   limpiarResultados,
-  mostrarCocktails
+  mostrarCocktails,
+  mostrarCategorias
 } from './render.js';
 
-const selecCocktail = document.getElementById('selecCocktail');
-const buscarCocktail = document.getElementById('buscarCocktail');
-const selectorCategorias =
-  document.getElementById('selectorCategorias');
+const inputCocktail = document.querySelector('#selecCocktail');
+const botonBuscar = document.querySelector('#buscarCocktail');
+const selectorCategorias = document.querySelector('#selectorCategorias');
 
-async function ejecutarBuscador() {
-  const nombre = selecCocktail.value.trim();
-
-  selectorCategorias.value = '';
-  limpiarResultados();
+async function buscarCocktails() {
+  const nombre = inputCocktail.value.trim();
 
   if (!nombre) {
-    mostrarEstadoPrograma('Escribe el nombre de un cocktail');
+    mostrarEstadoPrograma('Escribe el nombre de un coctel');
+    limpiarResultados();
     return;
   }
 
-  mostrarEstadoPrograma('Buscando cocktails...');
-
-  try {
-    const cocktails = await obtenerCocktails(nombre);
-
-    if (cocktails.length === 0) {
-      mostrarEstadoPrograma('No se encontraron cocktails');
-      return;
-    }
-
-    mostrarEstadoPrograma(obtenerMensajeResultados(cocktails.length));
-
-    mostrarCocktails(cocktails, {
-      mostrarCategoria: true
-    });
-  } catch (error) {
-    console.error('Error al consultar los cocktails:', error);
-    mostrarEstadoPrograma('No se pudieron cargar los cocktails');
-  }
-}
-
-async function ejecutarFiltroCategoria(categoria) {
+  botonBuscar.disabled = true;
+  selectorCategorias.disabled = true;
+  mostrarEstadoPrograma('Buscando cocteles…');
   limpiarResultados();
 
+  try {
+    const respuesta = await obtenerCocktails(nombre);
+    const cocktails = respuesta.drinks || [];
+    const cocktailsOrdenados = ordenarCocktails(cocktails);
+
+    mostrarEstadoPrograma(
+      obtenerMensajeResultados(cocktailsOrdenados)
+    );
+
+    mostrarCocktails(cocktailsOrdenados);
+  } catch (error) {
+    console.error('Error al buscar cocteles:', error);
+
+    mostrarEstadoPrograma(
+      'No se han podido cargar los cocteles, intentalo de nuevo'
+    );
+  } finally {
+    botonBuscar.disabled = false;
+    selectorCategorias.disabled = false;
+  }
+}
+
+async function filtrarPorCategoria() {
+  const categoria = selectorCategorias.value;
+
   if (!categoria) {
-    mostrarEstadoPrograma('Selecciona una categoría');
+    mostrarEstadoPrograma('Selecciona una categoria');
+    limpiarResultados();
     return;
   }
 
-  mostrarEstadoPrograma(`Cargando cocktails de ${categoria}...`);
+  botonBuscar.disabled = true;
+  selectorCategorias.disabled = true;
+  mostrarEstadoPrograma('Cargando cocteles…');
+  limpiarResultados();
 
   try {
-    const cocktails = await obtenerCocktailsCategoria(categoria);
+    const respuesta = await obtenerCocktailsCategoria(categoria);
+    const cocktails = respuesta.drinks || [];
+    const cocktailsOrdenados = ordenarCocktails(cocktails);
 
     mostrarEstadoPrograma(
-      obtenerMensajeCategoria(categoria, cocktails.length)
+      `${obtenerMensajeCategoria(categoria)}. ` +
+      obtenerMensajeResultados(cocktailsOrdenados)
     );
 
-    mostrarCocktails(cocktails);
+    mostrarCocktails(cocktailsOrdenados);
   } catch (error) {
-    console.error('Error al cargar la categoría:', error);
-    mostrarEstadoPrograma('No se pudieron cargar los cocktails');
+    console.error('Error al filtrar por categoria:', error);
+
+    mostrarEstadoPrograma(
+      'No se han podido cargar los cocteles de esta categoria.'
+    );
+  } finally {
+    botonBuscar.disabled = false;
+    selectorCategorias.disabled = false;
   }
 }
 
-function agregarOpcion(valor, texto) {
-  const opcion = document.createElement('option');
-
-  opcion.value = valor;
-  opcion.textContent = texto;
-
-  selectorCategorias.appendChild(opcion);
-}
-
-async function iniciarApp() {
-  selecCocktail.placeholder = 'Escriba el nombre de un cocktail';
+async function cargarCategorias() {
+  selectorCategorias.disabled = true;
+  mostrarEstadoPrograma('Cargando categorias…');
 
   try {
-    const datosCategorias = await obtenerCategorias();
+    const respuesta = await obtenerCategorias();
+    const categorias = obtenerCategoriasValidas(respuesta.drinks);
 
-    const categorias = obtenerCategoriasValidas(datosCategorias);
-
-    selectorCategorias.replaceChildren();
-
-    agregarOpcion('', 'Selecciona una categoría');
-
-    categorias.forEach(categoria => {
-      agregarOpcion(categoria, categoria);
-    });
-
-    selectorCategorias.options[0].textContent =
-      `Elija una de las ${categorias.length} categorías`;
+    mostrarCategorias(categorias);
+    mostrarEstadoPrograma('Busca un coctel o selecciona una categoria.');
   } catch (error) {
-    console.error('Error al cargar las categorías:', error);
-    mostrarEstadoPrograma('No se pudieron cargar las categorías');
+    console.error('Error al cargar categorias:', error);
+
+    mostrarEstadoPrograma(
+      'No se han podido cargar las categorias. Puedes intentar buscar un coctel.'
+    );
+  } finally {
+    selectorCategorias.disabled = false;
   }
 }
 
-buscarCocktail.addEventListener('click', ejecutarBuscador);
+botonBuscar.addEventListener('click', buscarCocktails);
 
-selecCocktail.addEventListener('keydown', evento => {
+inputCocktail.addEventListener('keydown', (evento) => {
   if (evento.key === 'Enter') {
-    ejecutarBuscador();
+    buscarCocktails();
   }
 });
 
-selectorCategorias.addEventListener('change', evento => {
-  selecCocktail.value = '';
-  ejecutarFiltroCategoria(evento.target.value);
-});
+selectorCategorias.addEventListener('change', filtrarPorCategoria);
+
+async function iniciarApp() {
+  limpiarResultados();
+  await cargarCategorias();
+}
 
 iniciarApp();

@@ -1,41 +1,50 @@
 
-const API_COCKTAILS =
-  'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=';
+import { obtenerCache, guardarCache } from './cache.js';
 
-const API_CATEGORIAS_LISTA =
-  'https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list';
-
-const API_CATEGORIAS_FILTRO =
-  'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=';
+const URL_BASE =
+  'https://www.thecocktaildb.com/api/json/v1/1/';
 
 async function consultarAPI(url) {
-  const respuesta = await fetch(url);
+  const datosCache = obtenerCache(url);
 
-  if (!respuesta.ok) {
-    throw new Error(`Error HTTP: ${respuesta.status}`);
+  if (datosCache !== null) {
+    return datosCache;
   }
 
-  return respuesta.json();
+  try {
+    const respuesta = await fetch(url);
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+
+    guardarCache(url, datos);
+
+    return datos;
+  } catch (error) {
+    console.error('Error al consultar la API:', error);
+    throw error;
+  }
 }
 
 export async function obtenerCocktails(nombre) {
-  const datos = await consultarAPI(
-    `${API_COCKTAILS}${encodeURIComponent(nombre)}`
-  );
+  const url =
+    `${URL_BASE}search.php?s=${encodeURIComponent(nombre)}`;
 
-  return datos.drinks || [];
+  return consultarAPI(url);
 }
 
 export async function obtenerCategorias() {
-  const datos = await consultarAPI(API_CATEGORIAS_LISTA);
+  const url = `${URL_BASE}list.php?c=list`;
 
-  return datos.drinks || [];
+  return consultarAPI(url);
 }
 
 export async function obtenerCocktailsCategoria(categoria) {
-  const datos = await consultarAPI(
-    `${API_CATEGORIAS_FILTRO}${encodeURIComponent(categoria)}`
-  );
+  const url =
+    `${URL_BASE}filter.php?c=${encodeURIComponent(categoria)}`;
 
-  return datos.drinks || [];
+  return consultarAPI(url);
 }
