@@ -6,6 +6,7 @@ La práctica se trata de una web de cocteles que te permite ver distinta informa
 
 ## Como probarlo
 El primer paso se trata de como el dev, para poder observarla web.
+Esto se hace con la instalacion de npm y posteriormente introduciendo en terminal npm run dev.
 A partir de ahi el programa te permite buscar la informacion ya sea buscando por nombre
 del coctel o por categorias de coctel. Y en caso de que se busque un nombre de coctel incorrecto
 al usuario se le indica que no hay coctel con ese nombre. 
