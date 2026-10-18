@@ -1,5 +1,5 @@
-
 const DURACION_CACHE = 30 * 60 * 1000;
+
 
 export function obtenerCache(clave) {
   try {
@@ -12,8 +12,11 @@ export function obtenerCache(clave) {
     const datosGuardados = JSON.parse(valorGuardado);
 
     if (
+      !datosGuardados ||
       typeof datosGuardados.timestamp !== 'number' ||
-      !('datos' in datosGuardados)
+      !datosGuardados.datos ||
+      typeof datosGuardados.datos !== 'object' ||
+      !('drinks' in datosGuardados.datos)
     ) {
       localStorage.removeItem(clave);
       return null;
@@ -22,17 +25,21 @@ export function obtenerCache(clave) {
     const tiempoTranscurrido =
       Date.now() - datosGuardados.timestamp;
 
-    if (tiempoTranscurrido >= DURACION_CACHE) {
+    if (
+      tiempoTranscurrido < 0 ||
+      tiempoTranscurrido >= DURACION_CACHE
+    ) {
       localStorage.removeItem(clave);
       return null;
     }
 
     return datosGuardados.datos;
   } catch (error) {
-    console.error('Error al leer la cache:', error);
+    console.error('Error al leer la caché:', error);
     return null;
   }
 }
+
 
 export function guardarCache(clave, datos) {
   try {
@@ -46,6 +53,6 @@ export function guardarCache(clave, datos) {
       JSON.stringify(datosGuardados)
     );
   } catch (error) {
-    console.error('Error al guardar la cache:', error);
+    console.error('Error al guardar la caché:', error);
   }
 }
