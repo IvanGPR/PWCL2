@@ -8,10 +8,8 @@ La práctica se trata de una web de cocteles que te permite ver distinta informa
 El primer paso se trata de como el dev, para poder observarla web.
 Esto se hace con la instalacion de npm y posteriormente introduciendo en terminal npm run dev.
 A partir de ahi el programa te permite buscar la informacion ya sea buscando por nombre
-del coctel o por categorias de coctel. Y en caso de que se busque un nombre de coctel incorrecto
-al usuario se le indica que no hay coctel con ese nombre. 
-Posteriormente de la la busqueda por nombre o por categoria, se obtiene las informacion de los cocteles 
-selecionados, dando asi tambien que se pueda ver todo la informacion de un coctel pulsando en "Ver en TheCocktailDB.
+del coctel, por categorias de coctel o te da la opcion de que el programa te enseñe uno aleatoriamente. Tambien teniendo en cuenta que en caso de que se busque un nombre de coctel incorrecto al usuario se le indica que no hay coctel con ese nombre. 
+Posteriormente de la la busqueda por nombre, por categoria o aleatoriamente, se obtiene las informacion general (nombre, foto, categoria) de los cocteles selecionados, dando asi tambien que se pueda ver todo la informacion concreta (nombre, foto, categoria, vaso, ingredientes, preparacion) de un coctel pulsando en "Ver receta".
 
 ## Uso de IA
 Para esta practica se ha utilizado la IA (chatGPT) para resolver dudas que han surgido en el transcurso de la practica
