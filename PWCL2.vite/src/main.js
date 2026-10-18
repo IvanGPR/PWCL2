@@ -34,6 +34,7 @@ const botonAleatorio = document.querySelector('#cocktailAleatorio');
 const selectorCategorias = document.querySelector('#selectorCategorias');
 const estadoCategorias = document.querySelector('#estadoCategorias');
 const botonReintentar = document.querySelector('#reintentarCategorias');
+const resultados = document.querySelector('#resultados');
 
 let cocktailsActuales = [];
 let incluirRecuentoActual = true;
