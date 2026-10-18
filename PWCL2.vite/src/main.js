@@ -5,15 +5,17 @@ import {
   obtenerCocktails,
   obtenerCategorias,
   obtenerCocktailsCategoria,
-  obtenerDetalleCocktail
+  obtenerDetalleCocktail,
+  obtenerCocktailAleatorio
 } from './api.js';
 
 import {
   obtenerCategoriasValidas,
+  ordenarCocktails,
+  contarCocktailsPorCategoria,
   obtenerMensajeResultados,
   obtenerMensajeCategoria,
-  ordenarCocktails,
-  contarCocktailsPorCategoria
+  obtenerMensajeError
 } from './logic.js';
 
 import {
@@ -26,194 +28,263 @@ import {
   mostrarDetalleCocktail
 } from './render.js';
 
-const inputCocktail = document.querySelector('#selecCocktail');
+const inputBusqueda = document.querySelector('#selecCocktail');
 const botonBuscar = document.querySelector('#buscarCocktail');
+const botonAleatorio = document.querySelector('#cocktailAleatorio');
 const selectorCategorias = document.querySelector('#selectorCategorias');
-const resultados = document.querySelector('#resultados');
+const estadoCategorias = document.querySelector('#estadoCategorias');
+const botonReintentar = document.querySelector('#reintentarCategorias');
 
 let cocktailsActuales = [];
+let incluirRecuentoActual = true;
+let numeroPeticionResultados = 0;
+
 
 function mostrarError(error) {
-  console.error('Error en la aplicación:', error);
-
-  if (error.tipo === 'red') {
-    mostrarEstadoPrograma(
-      'No se ha podido conectar con el servidor. Comprueba tu conexión.'
-    );
-  } else if (error.tipo === 'http') {
-    mostrarEstadoPrograma(
-      'El servidor ha devuelto un error. Inténtalo más tarde.'
-    );
-  } else if (error.tipo === 'datos') {
-    mostrarEstadoPrograma(
-      'La respuesta recibida no tiene un formato válido.'
-    );
-  } else {
-    mostrarEstadoPrograma(
-      'Ha ocurrido un error. Inténtalo de nuevo.'
-    );
-  }
+  console.error(error);
+  mostrarEstadoPrograma(obtenerMensajeError(error));
 }
 
-function mostrarListaCocktails(cocktails, mensaje) {
+
+function mostrarListaCocktails(cocktails, mensaje, incluirRecuento = true) {
   cocktailsActuales = cocktails;
+  incluirRecuentoActual = incluirRecuento;
 
   mostrarEstadoPrograma(mensaje);
   mostrarCocktails(cocktails);
 
-  const contador = contarCocktailsPorCategoria(cocktails);
-  mostrarRecuentoCategorias(contador);
+  if (incluirRecuento && cocktails.length > 0) {
+    const recuento = contarCocktailsPorCategoria(cocktails);
+    mostrarRecuentoCategorias(recuento);
+  }
 }
 
-async function buscarCocktails() {
-  const nombre = inputCocktail.value.trim();
 
-  if (!nombre) {
-    mostrarEstadoPrograma('Escribe el nombre de un cóctel.');
-    limpiarResultados();
-    return;
-  }
-
+function desactivarControlesResultados() {
   botonBuscar.disabled = true;
+  botonAleatorio.disabled = true;
   selectorCategorias.disabled = true;
-
-  mostrarCarga('Buscando cócteles…');
-  limpiarResultados();
-
-  try {
-    const respuesta = await obtenerCocktails(nombre);
-    const cocktails = respuesta.drinks || [];
-    const cocktailsOrdenados = ordenarCocktails(cocktails);
-
-    mostrarListaCocktails(
-      cocktailsOrdenados,
-      obtenerMensajeResultados(cocktailsOrdenados)
-    );
-  } catch (error) {
-    limpiarResultados();
-    mostrarError(error);
-  } finally {
-    botonBuscar.disabled = false;
-    selectorCategorias.disabled = false;
-  }
 }
 
-async function filtrarPorCategoria() {
-  const categoria = selectorCategorias.value;
 
-  if (!categoria) {
-    mostrarEstadoPrograma('Selecciona una categoría.');
-    limpiarResultados();
-    return;
-  }
-
-  botonBuscar.disabled = true;
-  selectorCategorias.disabled = true;
-
-  mostrarCarga('Cargando cócteles…');
-  limpiarResultados();
-
-  try {
-    const respuesta = await obtenerCocktailsCategoria(categoria);
-
-    // La respuesta del filtro puede no incluir la categoría.
-    const cocktails = (respuesta.drinks || []).map((cocktail) => ({
-      ...cocktail,
-      strCategory: categoria
-    }));
-
-    const cocktailsOrdenados = ordenarCocktails(cocktails);
-
-    mostrarListaCocktails(
-      cocktailsOrdenados,
-      `${obtenerMensajeCategoria(categoria)}. ` +
-      obtenerMensajeResultados(cocktailsOrdenados)
-    );
-  } catch (error) {
-    limpiarResultados();
-    mostrarError(error);
-  } finally {
-    botonBuscar.disabled = false;
-    selectorCategorias.disabled = false;
-  }
+function activarControlesResultados() {
+  botonBuscar.disabled = false;
+  botonAleatorio.disabled = false;
+  selectorCategorias.disabled = false;
 }
+
 
 async function cargarCategorias() {
-  selectorCategorias.disabled = true;
-
-  mostrarCarga('Cargando categorías…');
+  estadoCategorias.textContent = 'Cargando categorias...';
+  botonReintentar.hidden = true;
+  botonReintentar.disabled = true;
 
   try {
     const respuesta = await obtenerCategorias();
     const categorias = obtenerCategoriasValidas(respuesta.drinks);
 
     mostrarCategorias(categorias);
-
-    mostrarEstadoPrograma(
-      'Busca un cóctel o selecciona una categoría.'
-    );
+    estadoCategorias.textContent = '';
   } catch (error) {
-    mostrarError(error);
+    console.error(error);
+    estadoCategorias.textContent = obtenerMensajeError(error);
+    botonReintentar.hidden = false;
   } finally {
-    selectorCategorias.disabled = false;
+    botonReintentar.disabled = false;
   }
 }
 
+
+async function buscarCocktails() {
+  const nombre = inputBusqueda.value.trim();
+
+  if (!nombre) {
+    mostrarEstadoPrograma('Escribe el nombre de un coctel para buscar');
+    limpiarResultados();
+    return;
+  }
+
+  const miPeticion = ++numeroPeticionResultados;
+
+  desactivarControlesResultados();
+  mostrarCarga('Buscando cocteles...');
+  limpiarResultados();
+
+  try {
+    const respuesta = await obtenerCocktails(nombre);
+
+    if (miPeticion !== numeroPeticionResultados) {
+      return;
+    }
+
+    const cocktails = ordenarCocktails(respuesta.drinks || []);
+    const mensaje = obtenerMensajeResultados(cocktails.length, nombre);
+
+    mostrarListaCocktails(cocktails, mensaje, true);
+  } catch (error) {
+    if (miPeticion === numeroPeticionResultados) {
+      mostrarError(error);
+      limpiarResultados();
+    }
+  } finally {
+    if (miPeticion === numeroPeticionResultados) {
+      activarControlesResultados();
+    }
+  }
+}
+
+
+async function filtrarPorCategoria() {
+  const categoria = selectorCategorias.value;
+
+  if (!categoria) {
+    mostrarEstadoPrograma('Selecciona una categoria para filtrar');
+    limpiarResultados();
+    return;
+  }
+
+  const miPeticion = ++numeroPeticionResultados;
+
+  desactivarControlesResultados();
+  mostrarCarga('Buscando cocteles de esta categoria...');
+  limpiarResultados();
+
+  try {
+    const respuesta = await obtenerCocktailsCategoria(categoria);
+
+    if (miPeticion !== numeroPeticionResultados) {
+      return;
+    }
+
+    const cocktails = ordenarCocktails(respuesta.drinks || []);
+    const mensaje = obtenerMensajeCategoria(categoria, cocktails.length);
+
+    mostrarListaCocktails(cocktails, mensaje, false);
+  } catch (error) {
+    if (miPeticion === numeroPeticionResultados) {
+      mostrarError(error);
+      limpiarResultados();
+    }
+  } finally {
+    if (miPeticion === numeroPeticionResultados) {
+      activarControlesResultados();
+    }
+  }
+}
+
+
 async function verDetalleCocktail(id) {
-  mostrarCarga('Cargando detalle del cóctel…');
+  const miPeticion = ++numeroPeticionResultados;
+
+  desactivarControlesResultados();
+  mostrarCarga('Cargando receta...');
   limpiarResultados();
 
   try {
     const respuesta = await obtenerDetalleCocktail(id);
-    const cocktail = respuesta.drinks?.[0];
 
-    if (!cocktail) {
-      mostrarEstadoPrograma(
-        'No se ha encontrado información para este cóctel.'
-      );
+    if (miPeticion !== numeroPeticionResultados) {
       return;
     }
 
-    mostrarEstadoPrograma('');
+    const cocktail = respuesta.drinks?.[0];
+
+    if (!cocktail) {
+      mostrarEstadoPrograma('No se ha encontrado la receta de este coctel');
+      return;
+    }
+
+    mostrarEstadoPrograma('Detalle del coctel');
     mostrarDetalleCocktail(cocktail);
   } catch (error) {
-    mostrarError(error);
+    if (miPeticion === numeroPeticionResultados) {
+      mostrarError(error);
+      limpiarResultados();
+    }
+  } finally {
+    if (miPeticion === numeroPeticionResultados) {
+      activarControlesResultados();
+    }
   }
 }
+
+
+async function buscarCocktailAleatorio() {
+  const miPeticion = ++numeroPeticionResultados;
+
+  desactivarControlesResultados();
+  mostrarCarga('Buscando una sorpresa...');
+  limpiarResultados();
+
+  try {
+    const respuesta = await obtenerCocktailAleatorio();
+
+    if (miPeticion !== numeroPeticionResultados) {
+      return;
+    }
+
+    const cocktail = respuesta.drinks?.[0];
+
+    if (!cocktail) {
+      mostrarEstadoPrograma('No se ha encontrado ningún coctel');
+      return;
+    }
+
+    mostrarListaCocktails([cocktail], '¡Aquí tienes un coctel sorpresa!', false);
+  } catch (error) {
+    if (miPeticion === numeroPeticionResultados) {
+      mostrarError(error);
+      limpiarResultados();
+    }
+  } finally {
+    if (miPeticion === numeroPeticionResultados) {
+      activarControlesResultados();
+    }
+  }
+}
+
 
 function volverAResultados() {
   mostrarListaCocktails(
     cocktailsActuales,
-    obtenerMensajeResultados(cocktailsActuales)
+    'Estos son tus resultados.',
+    incluirRecuentoActual
   );
 }
 
 botonBuscar.addEventListener('click', buscarCocktails);
 
-inputCocktail.addEventListener('keydown', (evento) => {
+inputBusqueda.addEventListener('keydown', (evento) => {
   if (evento.key === 'Enter') {
     buscarCocktails();
   }
 });
 
-selectorCategorias.addEventListener('change', filtrarPorCategoria);
+selectorCategorias.addEventListener('change', () => {
+  if (selectorCategorias.value) {
+    filtrarPorCategoria();
+  }
+});
+
+botonAleatorio.addEventListener('click', buscarCocktailAleatorio);
+botonReintentar.addEventListener('click', cargarCategorias);
 
 resultados.addEventListener('click', (evento) => {
   const boton = evento.target.closest('button[data-action]');
+
   if (!boton) {
     return;
   }
-  if (boton.dataset.action === 'detalle') {
+
+  const accion = boton.dataset.action;
+
+  if (accion === 'detalle') {
     verDetalleCocktail(boton.dataset.id);
   }
-  if (boton.dataset.action === 'volver') {
+
+  if (accion === 'volver') {
     volverAResultados();
   }
 });
 
-async function iniciarApp() {
-  limpiarResultados();
-  await cargarCategorias();
-}
-
-iniciarApp();
+cargarCategorias();

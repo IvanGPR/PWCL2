@@ -1,58 +1,52 @@
-const DURACION_CACHE = 30 * 60 * 1000;
 
+const DURACION_CACHE = 30 * 60 * 1000;
+const PREFIJO_CACHE = 'cocktailWiki:';
 
 export function obtenerCache(clave) {
-  try {
-    const valorGuardado = localStorage.getItem(clave);
+  const claveCache = `${PREFIJO_CACHE}${clave}`;
 
-    if (!valorGuardado) {
+  try {
+    const contenido = localStorage.getItem(claveCache);
+
+    if (!contenido) {
       return null;
     }
 
-    const datosGuardados = JSON.parse(valorGuardado);
+    const datosGuardados = JSON.parse(contenido);
 
     if (
       !datosGuardados ||
       typeof datosGuardados.timestamp !== 'number' ||
+      !Number.isFinite(datosGuardados.timestamp) ||
       !datosGuardados.datos ||
-      typeof datosGuardados.datos !== 'object' ||
-      !('drinks' in datosGuardados.datos)
+      typeof datosGuardados.datos !== 'object'
     ) {
-      localStorage.removeItem(clave);
+      localStorage.removeItem(claveCache);
       return null;
     }
 
-    const tiempoTranscurrido =
-      Date.now() - datosGuardados.timestamp;
+    const cacheCaducada = Date.now() - datosGuardados.timestamp > DURACION_CACHE;
 
-    if (
-      tiempoTranscurrido < 0 ||
-      tiempoTranscurrido >= DURACION_CACHE
-    ) {
-      localStorage.removeItem(clave);
+    if (cacheCaducada) {
+      localStorage.removeItem(claveCache);
       return null;
     }
 
     return datosGuardados.datos;
   } catch (error) {
-    console.error('Error al leer la caché:', error);
     return null;
   }
 }
 
 
 export function guardarCache(clave, datos) {
-  try {
-    const datosGuardados = {
-      timestamp: Date.now(),
-      datos: datos
-    };
+  const claveCache = `${PREFIJO_CACHE}${clave}`;
 
-    localStorage.setItem(
-      clave,
-      JSON.stringify(datosGuardados)
-    );
+  try {
+    const contenido = {timestamp: Date.now(),datos: datos};
+
+    localStorage.setItem(claveCache, JSON.stringify(contenido));
   } catch (error) {
-    console.error('Error al guardar la caché:', error);
+    console.warn('No se han podido guardar los datos en la cache');
   }
 }

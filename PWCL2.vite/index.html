@@ -1,39 +1,40 @@
 
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cocktail Wiki</title>
-    <script type="module" src="/src/main.js"></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cocktail Wiki</title>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <main id="app">
+    <h1 id="cocktails">COCKTAIL WIKI</h1>
 
-  <body>
-    <main id="app">
-      <h1 id="cocktails">COCKTAIL WIKI</h1>
-
-      <div id="buscador">
-        <label for="selecCocktail">¿Que cocktail quieres buscar?</label>
-
-        <div>
-          <input type="text" id="selecCocktail" />
-          <button id="buscarCocktail" type="button">
-            BUSCAR
-          </button>
-        </div>
-      </div>
-
+    <section id="buscador">
+      <label for="selecCocktail">¿Que coctel quieres buscar?</label>
       <div>
-        <label for="selectorCategorias">Filtrar por categoria:</label>
-        <select id="selectorCategorias">
-          <option value="">Selecciona una categoria</option>
-        </select>
+        <input type="text"/>
+        <button id="buscarCocktail" type="button">BUSCAR</button>
+        <button id="cocktailAleatorio" type="button">SORPRÉNDEME</button>
       </div>
+    </section>
 
-      <div id="tituloCocktail"></div>
+    <section id="filtroCategorias">
+      <label for="selectorCategorias">Filtrar por categoria:</label>
+      <select id="selectorCategorias">
+        <option value="">Selecciona una categoria</option>
+      </select>
 
-      <div id="resultados"></div>
-    </main>
-  </body>
+      <div id="estadoCategorias"></div>
+
+      <button id="reintentarCategorias" type="button" hidden>
+        Reintentar carga de categorias
+      </button>
+    </section>
+
+    <div id="tituloCocktail"></div>
+    <div id="resultados"></div>
+  </main>
+</body>
 </html>
-

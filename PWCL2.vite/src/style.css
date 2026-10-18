@@ -1,204 +1,227 @@
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, sans-serif;
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --primary: #f97316;
-  --primary-hover: #ea580c;
-  --primary-focus: #ffedd5;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --radius: 12px;
-  --shadow: #e2e8f0;
-  --shadow-hover: #cbd5e1;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #292929;
+  background-color: #fff8f0;
 }
 
 body {
   margin: 0;
-  padding: 0;
-  background-color: var(--bg-color);
-  font-family: var(--font-main);
-  color: var(--text-main);
-  line-height: 1.5;
+  min-width: 320px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ed7d31;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #c95e18;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input,
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+}
+
+input:focus,
+select:focus,
+button:focus-visible {
+  outline: 2px solid #ed7d31;
+  outline-offset: 2px;
 }
 
 #app {
-  max-width: 1000px;
+  width: min(1100px, 92%);
   margin: 0 auto;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+  padding: 24px 0 40px;
 }
 
 #cocktails {
-  font-size: 2.75rem;
-  font-weight: 800;
+  margin: 0 0 28px;
+  color: #ed7d31;
   text-align: center;
-  color: var(--primary);
-  letter-spacing: -1px;
-  text-transform: uppercase;
-  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5vw, 3.2rem);
 }
 
 #buscador,
 #filtroCategorias {
-  width: 100%;
-  max-width: 600px;
+  margin-bottom: 24px;
 }
 
 #buscador label,
 #filtroCategorias label {
   display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 #buscador > div {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-input[type="text"],
-select {
+#selecCocktail {
+  flex: 1;
+  min-width: 180px;
+}
+
+#selectorCategorias {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  background-color: var(--card-bg);
-  color: var(--text-main);
-  box-shadow: 0 1px 2px #f1f5f9;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
+  max-width: 400px;
 }
 
-input[type="text"]:focus,
-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-focus);
+#estadoCategorias {
+  margin-top: 10px;
+  color: #8b4216;
 }
 
-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: var(--primary);
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  white-space: nowrap;
-}
-
-button:hover {
-  background-color: var(--primary-hover);
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-button:disabled,
-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+#reintentarCategorias {
+  margin-top: 10px;
 }
 
 #tituloCocktail {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  flex-wrap: wrap;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-top: 1rem;
+  margin: 20px 0;
   text-align: center;
 }
 
 #resultados {
-  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.tarjeta-cocktail,
+.detalle-cocktail,
+.resumen-categorias {
+  padding: 18px;
+  border: 1px solid #f0d8c3;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 6%);
 }
 
 .tarjeta-cocktail {
-  background-color: var(--card-bg);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px -1px var(--shadow);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 12px;
 }
 
-.tarjeta-cocktail:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px var(--shadow-hover);
+.tarjeta-cocktail h2 {
+  margin: 0;
+  color: #bd581b;
+  font-size: 1.25rem;
 }
 
 .tarjeta-cocktail img {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-}
-
-.tarjeta-cocktail h2 {
-  font-size: 1.1rem;
-  margin: 1rem 1rem 0.5rem;
-  color: var(--text-main);
-}
-
-.tarjeta-cocktail h3 {
-  font-size: 1rem;
-  margin: 1rem 1rem 0.5rem;
-  color: var(--text-main);
+  border-radius: 8px;
 }
 
 .tarjeta-cocktail p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin: 0 1rem 1rem;
-  text-transform: capitalize;
-}
-
-.tarjeta-cocktail ul {
-  padding-left: 2.5rem;
-  padding-right: 1rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.tarjeta-cocktail li {
-  margin-bottom: 0.35rem;
+  margin: 0;
 }
 
 .tarjeta-cocktail button {
-  margin: auto 1rem 1rem;
-  white-space: normal;
+  margin-top: auto;
+}
+
+.resumen-categorias {
+  grid-column: 1 / -1;
+}
+
+.resumen-categorias h2 {
+  margin-top: 0;
+  color: #bd581b;
+}
+
+.resumen-categorias ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  padding-left: 20px;
+}
+
+.detalle-cocktail {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.detalle-cocktail h2 {
+  color: #bd581b;
+}
+
+.detalle-cocktail img {
+  display: block;
+  width: min(100%, 400px);
+  margin: 16px auto;
+  border-radius: 10px;
+}
+
+.detalle-cocktail h3 {
+  margin-top: 24px;
+  color: #bd581b;
+}
+
+.detalle-cocktail li {
+  margin-bottom: 8px;
+}
+
+.detalle-cocktail p {
+  line-height: 1.6;
+}
+
+.detalle-cocktail button {
+  margin-top: 16px;
 }
 
 .indicador-carga {
+  font-weight: bold;
+}
+
+.indicador-carga::before {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  border: 3px solid var(--primary-focus);
-  border-top-color: var(--primary);
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  border: 3px solid #f0d8c3;
+  border-top-color: #ed7d31;
   border-radius: 50%;
+  content: "";
+  vertical-align: -3px;
   animation: girar 0.8s linear infinite;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 @keyframes girar {
@@ -207,55 +230,17 @@ select:disabled {
   }
 }
 
-.resumen-categorias {
-  grid-column: 1 / -1;
-  padding: 1rem;
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-}
-
-.resumen-categorias h2 {
-  font-size: 1.1rem;
-  margin: 0 0 0.75rem;
-  color: var(--text-main);
-}
-
-.resumen-categorias p {
-  margin: 0.25rem 0;
-  color: var(--text-muted);
-}
-
-.detalle-cocktail {
-  grid-column: 1 / -1;
-  width: 100%;
-  max-width: 700px;
-  justify-self: center;
-  box-sizing: border-box;
-}
-
-.detalle-cocktail img {
-  height: auto;
-  max-height: 400px;
-  object-fit: contain;
-  background-color: #ffffff;
-}
-
-.detalle-cocktail p {
-  text-transform: none;
-  line-height: 1.7;
-  margin: 0 1rem 1.5rem;
-}
-
-@media (max-width: 480px) {
-  #cocktails {
-    font-size: 2rem;
+@media (max-width: 600px) {
+  #app {
+    width: 90%;
+    padding-top: 18px;
   }
 
   #buscador > div {
     flex-direction: column;
   }
 
+  #selecCocktail,
   #buscador button {
     width: 100%;
   }

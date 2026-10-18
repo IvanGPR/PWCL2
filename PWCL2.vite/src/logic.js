@@ -4,13 +4,10 @@ export function obtenerCategoriasValidas(datos) {
     return [];
   }
 
-  return datos
-    .filter((categoria) =>
-      categoria &&
-      typeof categoria.strCategory === 'string' &&
-      categoria.strCategory.trim() !== ''
-    )
-    .map((categoria) => categoria.strCategory);
+  return datos.filter((categoria) => {
+      return categoria && typeof categoria.strCategory === 'string';
+    })
+    .map((categoria) => categoria.strCategory).filter((categoria) => categoria.trim() !== '');
 }
 
 
@@ -19,15 +16,15 @@ export function ordenarCocktails(cocktails) {
     return [];
   }
 
-  return cocktails
-    .filter((cocktail) =>
-      cocktail &&
-      typeof cocktail.strDrink === 'string' &&
-      cocktail.strDrink.trim() !== ''
-    )
-    .toSorted((a, b) =>
-      a.strDrink.localeCompare(b.strDrink, 'es')
+  const cocktailsValidos = cocktails.filter((cocktail) => {
+    return (
+      cocktail && typeof cocktail.strDrink === 'string' && cocktail.strDrink.trim() !== ''
     );
+  });
+
+  return cocktailsValidos.toSorted((a, b) => {
+    return a.strDrink.localeCompare(b.strDrink, 'en');
+  });
 }
 
 
@@ -36,30 +33,54 @@ export function contarCocktailsPorCategoria(cocktails) {
     return {};
   }
 
-  return cocktails.reduce((contador, cocktail) => {
-    const categoria =
-      cocktail.strCategory || 'Sin categoría';
+  return cocktails.reduce((recuento, cocktail) => {
+    const categoria = cocktail.strCategory || 'Sin categoria';
 
-    contador[categoria] = (contador[categoria] || 0) + 1;
+    if (!recuento[categoria]) {
+      recuento[categoria] = 0;
+    }
 
-    return contador;
+    recuento[categoria]++;
+
+    return recuento;
   }, {});
 }
 
 
-export function obtenerMensajeResultados(cocktails) {
-  if (!Array.isArray(cocktails) || cocktails.length === 0) {
-    return 'No se han encontrado cócteles.';
+export function obtenerMensajeResultados(cantidad, nombre) {
+  if (cantidad === 0) {
+    return `No se han encontrado cocteles para "${nombre}"`;
   }
 
-  if (cocktails.length === 1) {
-    return 'Se ha encontrado 1 cóctel.';
+  if (cantidad === 1) {
+    return 'Se ha encontrado 1 coctel';
   }
 
-  return `Se han encontrado ${cocktails.length} cócteles.`;
+  return `Se han encontrado ${cantidad} cocteles`;
 }
 
 
-export function obtenerMensajeCategoria(categoria) {
-  return `Cócteles de la categoría: ${categoria}`;
+export function obtenerMensajeCategoria(categoria, cantidad) {
+  if (cantidad === 0) {
+    return `No se han encontrado cocteles en la categoria ${categoria}`;
+  }
+
+  return `Cocteles de la categoria ${categoria}: ${cantidad}`;
+}
+
+
+export function obtenerMensajeError(error) {
+  if (error?.tipo === 'red') {
+    return 'No se ha podido conectar con el servidor. Comprueba tu conexion';
+  }
+
+  if (error?.tipo === 'http') {
+    return 'El servidor ha devuelto un error, intentalo mas tarde';
+  }
+
+  if (error?.tipo === 'datos') {
+    return 'La respuesta recibida no tiene un formato valido';
+  }
+
+  return 'Ha ocurrido un error, intentalo de nuevo';
 }
